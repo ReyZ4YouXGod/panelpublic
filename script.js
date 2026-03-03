@@ -110,26 +110,42 @@ document.getElementById('btnList').addEventListener('click', async () => {
     } catch(e) { output.innerText = "❌ Gagal: " + e.message; }
 });
 
-// 3. SUBDOMAIN CLOUDFLARE
+// 3. SUBDOMAIN CLOUDFLARE (FIXED VIA PROXY)
 document.getElementById('btnSubdo').addEventListener('click', async () => {
     const tld = document.getElementById('domSelect').value;
     const host = document.getElementById('hostInput').value.trim().toLowerCase();
     const ip = document.getElementById('ipInput').value.trim();
     if(!host || !ip) return alert("Input tidak lengkap!");
 
-    output.innerText = "⏳ Menghubungkan ke Cloudflare...";
-    const cfReq = (name) => fetch(`https://api.cloudflare.com/client/v4/zones/${subdomain[tld].zone}/dns_records`, {
+    output.innerText = "⏳ Menghubungkan ke Cloudflare via Proxy...";
+    
+    // Kita gunakan /cf-proxy/ sebagai jembatan
+    const cfReq = (name) => fetch(`/cf-proxy/zones/${subdomain[tld].zone}/dns_records`, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${subdomain[tld].apitoken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "A", name: `${name}.${tld}`, content: ip, ttl: 3600, proxied: false })
+        headers: { 
+            "Authorization": `Bearer ${subdomain[tld].apitoken}`, 
+            "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({ 
+            type: "A", 
+            name: `${name}.${tld}`, 
+            content: ip, 
+            ttl: 3600, 
+            proxied: false 
+        })
     }).then(r => r.json());
 
     try {
         const r1 = await cfReq(host);
         if(!r1.success) throw new Error(r1.errors[0].message);
+        
+        // Buat record kedua untuk node (opsional)
         const r2 = await cfReq(`node-${randomStr(2)}.${host}`);
+        
         output.innerHTML = `✅ <b>Subdomain Aktif!</b>\n🌍 IP: ${ip}\n📌 Panel: ${r1.result.name}\n🖥️ Node: ${r2.result.name}`;
-    } catch(e) { output.innerText = "❌ CF Error: " + e.message; }
+    } catch(e) { 
+        output.innerText = "❌ CF Error: " + e.message; 
+    }
 });
 
 // 4. DELETE SERVER & USER (FIXED)
