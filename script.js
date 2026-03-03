@@ -1,22 +1,30 @@
 // Menggunakan proxy internal Vercel untuk menghindari CORS pada API Pterodactyl
 const domainProxy = "/api-proxy";
-const { apikey, nestid, egg, loc, resourceMap, subdomain, roles } = config;
+const { apikey, nestid, egg, loc, resourceMap, subdomain, roles, cpanelPackages } = config;
 const output = document.getElementById('output-box');
 
 // --- LOGIKA SISTEM KASTA (UPDATE) ---
 function applyRolePermissions() {
-    const userRole = localStorage.getItem('userRole') || 'Reseller'; 
-    const username = localStorage.getItem('username') || 'Guest';
-    const roleData = roles[userRole];
+    const userRole = localStorage.getItem('userRole');
+    const username = localStorage.getItem('username');
 
+    // Jika data login hilang, tendang ke login.html
+    if (!userRole || !username) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const roleData = roles[userRole];
     if (!roleData) return;
 
-    // Update Tampilan Profil di Sidebar
-    if(document.getElementById('sess-user')) document.getElementById('sess-user').innerText = username;
-    const badge = document.getElementById('sess-role');
-    if(badge) {
-        badge.innerText = userRole;
-        badge.className = `u-role ${roleData.badgeClass}`;
+    // Fix Tampilan Profil Sidebar (Menghilangkan status "Memuat...")
+    const nameEl = document.getElementById('sess-user');
+    const roleEl = document.getElementById('sess-role');
+    
+    if(nameEl) nameEl.innerText = username;
+    if(roleEl) {
+        roleEl.innerText = userRole;
+        roleEl.className = `u-role ${roleData.badgeClass}`;
     }
 
     // Filter Menu Sesuai Izin di config.js
@@ -29,20 +37,35 @@ function applyRolePermissions() {
     });
 }
 
-// Auto Load Dropdown & Permissions saat halaman dibuka
+// Fungsi Load Dropdown agar isi RAM dan Domain muncul
+function loadDropdowns() {
+    const pkgSelect = document.getElementById('pkgSelect');
+    const domSelect = document.getElementById('domSelect');
+    const cpPkg = document.getElementById('cpPkg');
+
+    if (pkgSelect) {
+        pkgSelect.innerHTML = "";
+        Object.keys(resourceMap).forEach(key => pkgSelect.add(new Option(key.toUpperCase(), key)));
+    }
+    if (domSelect) {
+        domSelect.innerHTML = "";
+        Object.keys(subdomain).forEach(dom => domSelect.add(new Option(dom, dom)));
+    }
+    if (cpPkg && cpanelPackages) {
+        cpPkg.innerHTML = "";
+        Object.keys(cpanelPackages).forEach(key => cpPkg.add(new Option(cpanelPackages[key], key)));
+    }
+}
+
+// Auto Load saat halaman dibuka
 window.onload = () => {
-    // Cek Login
     if(!localStorage.getItem('isLoggedIn')) {
         window.location.href = "login.html";
         return;
     }
 
     applyRolePermissions();
-
-    const pkgSelect = document.getElementById('pkgSelect');
-    const domSelect = document.getElementById('domSelect');
-    if (pkgSelect) Object.keys(resourceMap).forEach(key => pkgSelect.add(new Option(key.toUpperCase(), key)));
-    if (domSelect) Object.keys(subdomain).forEach(dom => domSelect.add(new Option(dom, dom)));
+    loadDropdowns();
 };
 
 function randomStr(len = 3) {
@@ -50,7 +73,7 @@ function randomStr(len = 3) {
     return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-// 1. CREATE SERVER & USER (ASLI & TETAP AKTIF)
+// 1. CREATE SERVER & USER
 const btnCreate = document.getElementById('btnCreate');
 if(btnCreate) {
     btnCreate.addEventListener('click', async () => {
@@ -99,7 +122,7 @@ if(btnCreate) {
     });
 }
 
-// 2. LIST SERVER (ASLI & TETAP AKTIF)
+// 2. LIST SERVER
 const btnList = document.getElementById('btnList');
 if(btnList) {
     btnList.addEventListener('click', async () => {
@@ -122,7 +145,7 @@ if(btnList) {
     });
 }
 
-// 3. SUBDOMAIN CLOUDFLARE (ASLI & TETAP AKTIF)
+// 3. SUBDOMAIN CLOUDFLARE
 const btnSubdo = document.getElementById('btnSubdo');
 if(btnSubdo) {
     btnSubdo.addEventListener('click', async () => {
@@ -146,7 +169,7 @@ if(btnSubdo) {
     });
 }
 
-// 4. DELETE SERVER & USER (ASLI & TETAP AKTIF)
+// 4. DELETE SERVER & USER
 const btnDelServer = document.getElementById('btnDelServer');
 if(btnDelServer) {
     btnDelServer.addEventListener('click', async () => {
@@ -163,7 +186,7 @@ if(btnDelServer) {
     });
 }
 
-// 5. ADMIN MANAGE (ASLI & TETAP AKTIF)
+// 5. ADMIN MANAGE
 const btnCreateAdmin = document.getElementById('btnCreateAdmin');
 if(btnCreateAdmin) {
     btnCreateAdmin.addEventListener('click', async () => {
@@ -192,4 +215,4 @@ function showTab(e, tabId, title) {
     document.getElementById(tabId).style.display = 'block';
     if(e) e.currentTarget.classList.add('active');
     document.getElementById('tab-title').innerText = title;
-}
+                                                       }
