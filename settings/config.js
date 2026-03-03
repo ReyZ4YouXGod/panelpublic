@@ -23,9 +23,9 @@ const config = {
 
     // Cloudflare Subdomain Settings
     subdomain: {
-      "galanghostxoline.my.id": {
-        "zone": "6ac7dc4e93652bfa6bb1c79d2d2d49e7",
-        "apitoken": "M64KlwR_p7wxc15UkzD0x9k1VgdR7O86ADThGt54"
+      "xyzid.store": {
+        "zone": "e93173606e90f52fa3288799c45a293e",
+        "apitoken": "DvtCrbOd1L-dohyju6-dJEV3jjyK2nWZZjCGK6DQ"
       },
       "galangoffc.biz.id": {
         "zone": "de6ecce0e30520f02a55ef47c132aee6", 
