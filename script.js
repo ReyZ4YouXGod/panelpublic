@@ -16,7 +16,7 @@ function randomStr(len = 3) {
     return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-// 1. CREATE SERVER & USER
+// 1. CREATE SERVER & USER (FIXED)
 document.getElementById('btnCreate').addEventListener('click', async () => {
     const user = document.getElementById('userInput').value.toLowerCase().trim();
     const pkg = document.getElementById('pkgSelect').value;
@@ -25,16 +25,30 @@ document.getElementById('btnCreate').addEventListener('click', async () => {
     output.innerText = "⏳ Sedang memproses User & Server via Proxy...";
     const { ram, disk, cpu } = resourceMap[pkg];
     const password = user + randomStr(3);
+    const uniqueEmail = `${user}.${randomStr(3)}@reyzcloud.com`; // Fix email duplikat
 
     try {
         // Step 1: Create User
         const uRes = await fetch(`${domainProxy}/application/users`, {
             method: "POST",
             headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Bearer ${apikey}` },
-            body: JSON.stringify({ email: `${user}@ReyzCloud.com`, username: user, first_name: user.toUpperCase(), last_name: "Server", language: "en", password })
+            body: JSON.stringify({ 
+                email: uniqueEmail, 
+                username: user, 
+                first_name: user.toUpperCase(), 
+                last_name: "Server", 
+                language: "en", 
+                password 
+            })
         });
+        
         const uData = await uRes.json();
-        if(uData.errors) throw new Error(uData.errors[0].detail);
+        
+        // Safety Check User
+        if(uData.errors) throw new Error("Gagal User: " + uData.errors[0].detail);
+        if(!uData.attributes) throw new Error("Data User tidak ditemukan dalam respon API.");
+
+        const userId = uData.attributes.id;
 
         // Step 2: Create Server
         const sRes = await fetch(`${domainProxy}/application/servers`, {
@@ -42,7 +56,7 @@ document.getElementById('btnCreate').addEventListener('click', async () => {
             headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Bearer ${apikey}` },
             body: JSON.stringify({
                 name: user.toUpperCase() + " SERVER",
-                user: uData.attributes.id,
+                user: userId,
                 egg: parseInt(egg),
                 docker_image: "ghcr.io/parkervcp/yolks:nodejs_20",
                 startup: "npm start",
@@ -52,24 +66,30 @@ document.getElementById('btnCreate').addEventListener('click', async () => {
                 deploy: { locations: [parseInt(loc)], dedicated_ip: false, port_range: [] }
             })
         });
+        
         const sData = await sRes.json();
-        if(sData.errors) throw new Error(sData.errors[0].detail);
+        
+        // Safety Check Server
+        if(sData.errors) throw new Error("Gagal Server: " + sData.errors[0].detail);
 
-        output.innerHTML = `✅ <b>BERHASIL!</b>\n\nUser: ${user}\nPass: ${password}\nRAM: ${ram}MB\nID Server: ${sData.attributes.id}`;
+        output.innerHTML = `✅ <b>BERHASIL!</b>\n\n👤 User: ${user}\n🔑 Pass: ${password}\n💾 RAM: ${ram}MB\n🆔 ID: ${sData.attributes.id}\n📧 Email: ${uniqueEmail}`;
     } catch(e) { 
         console.error(e);
         output.innerText = "❌ Error: " + e.message; 
     }
 });
 
-// 2. LIST SERVER
+// 2. LIST SERVER (FIXED)
 document.getElementById('btnList').addEventListener('click', async () => {
-    output.innerText = "⏳ Loading server list via Proxy...";
+    output.innerText = "⏳ Loading server list...";
     try {
         const res = await fetch(`${domainProxy}/application/servers`, { 
             headers: { "Authorization": `Bearer ${apikey}`, "Accept": "application/json" } 
         });
         const data = await res.json();
+        
+        if(!data.data) throw new Error("Gagal mengambil data server.");
+
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = "";
         data.data.forEach(srv => {
@@ -77,10 +97,10 @@ document.getElementById('btnList').addEventListener('click', async () => {
             tbody.innerHTML += `<tr><td>${s.id}</td><td>${s.name}</td><td>${s.limits.memory}MB</td><td>${s.limits.disk}MB</td></tr>`;
         });
         output.innerText = `✅ Berhasil memuat ${data.data.length} server.`;
-    } catch(e) { output.innerText = "❌ Gagal memuat data: " + e.message; }
+    } catch(e) { output.innerText = "❌ Gagal: " + e.message; }
 });
 
-// 3. SUBDOMAIN CLOUDFLARE (Direct fetch karena CF biasanya mendukung CORS)
+// 3. SUBDOMAIN CLOUDFLARE
 document.getElementById('btnSubdo').addEventListener('click', async () => {
     const tld = document.getElementById('domSelect').value;
     const host = document.getElementById('hostInput').value.trim().toLowerCase();
@@ -102,18 +122,20 @@ document.getElementById('btnSubdo').addEventListener('click', async () => {
     } catch(e) { output.innerText = "❌ CF Error: " + e.message; }
 });
 
-// 4. DELETE SERVER & USER
+// 4. DELETE SERVER & USER (FIXED)
 document.getElementById('btnDelServer').addEventListener('click', async () => {
     const id = document.getElementById('idTarget').value;
     if(!id || !confirm("Yakin hapus server & user ini?")) return;
     output.innerText = "⏳ Sedang menghapus via Proxy...";
     try {
-        // Ambil info server dulu buat dapet username-nya
+        // Ambil info server
         const sRes = await fetch(`${domainProxy}/application/servers/${id}`, { 
             headers: { "Authorization": `Bearer ${apikey}`, "Accept": "application/json" } 
         });
         const sData = await sRes.json();
-        const uName = sData.attributes.name.split(' ')[0].toLowerCase();
+        if(!sData.attributes) throw new Error("Server tidak ditemukan.");
+        
+        const uId = sData.attributes.user;
 
         // Hapus Server
         await fetch(`${domainProxy}/application/servers/${id}`, { 
@@ -121,36 +143,40 @@ document.getElementById('btnDelServer').addEventListener('click', async () => {
             headers: { "Authorization": `Bearer ${apikey}` } 
         });
 
-        // Cari & Hapus User
-        const uList = await fetch(`${domainProxy}/application/users`, { 
-            headers: { "Authorization": `Bearer ${apikey}`, "Accept": "application/json" } 
-        }).then(r => r.json());
-        
-        const target = uList.data.find(u => u.attributes.username === uName);
-        if(target) {
-            await fetch(`${domainProxy}/application/users/${target.attributes.id}`, { 
-                method: "DELETE", 
-                headers: { "Authorization": `Bearer ${apikey}` } 
-            });
-        }
+        // Hapus User secara langsung pakai ID user dari server
+        await fetch(`${domainProxy}/application/users/${uId}`, { 
+            method: "DELETE", 
+            headers: { "Authorization": `Bearer ${apikey}` } 
+        });
+
         output.innerText = "✅ Server & Akun berhasil dihapus!";
-    } catch(e) { output.innerText = "❌ Gagal menghapus: " + e.message; }
+    } catch(e) { output.innerText = "❌ Gagal: " + e.message; }
 });
 
-// 5. ADMIN MANAGE
+// 5. ADMIN MANAGE (FIXED)
 document.getElementById('btnCreateAdmin').addEventListener('click', async () => {
     const user = document.getElementById('adminUsername').value.toLowerCase().trim();
     if(!user) return alert("Username admin kosong!");
     const pass = user + randomStr(3);
+    const email = `admin.${randomStr(2)}@reyzcloud.com`;
+
     try {
         const res = await fetch(`${domainProxy}/application/users`, {
             method: "POST",
             headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Bearer ${apikey}` },
-            body: JSON.stringify({ email: `${user}@ReyzAdmin.com`, username: user, first_name: user.toUpperCase(), last_name: "ROOT", root_admin: true, language: "en", password: pass })
+            body: JSON.stringify({ 
+                email: email, 
+                username: user, 
+                first_name: user.toUpperCase(), 
+                last_name: "ROOT", 
+                root_admin: true, 
+                language: "en", 
+                password: pass 
+            })
         });
         const data = await res.json();
         if(data.errors) throw new Error(data.errors[0].detail);
-        output.innerHTML = `👑 <b>ADMIN DIBUAT!</b>\n\nUser: ${user}\nPass: ${pass}`;
+        output.innerHTML = `👑 <b>ADMIN DIBUAT!</b>\n\n👤 User: ${user}\n🔑 Pass: ${pass}\n📧 Email: ${email}`;
     } catch(e) { output.innerText = "❌ Error: " + e.message; }
 });
 
@@ -162,7 +188,7 @@ document.getElementById('btnDelAdmin').addEventListener('click', async () => {
             method: "DELETE", 
             headers: { "Authorization": `Bearer ${apikey}` } 
         });
-        if(!res.ok) throw new Error("Gagal menghapus admin.");
+        if(!res.ok) throw new Error("Gagal menghapus admin (Mungkin ID salah).");
         output.innerText = "✅ Akun Admin berhasil dihapus!";
     } catch(e) { output.innerText = "❌ Error: " + e.message; }
 });
