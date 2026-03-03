@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - ReyzCloud</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-black: #05010a;
+      --accent-purple: #bc13fe;
+      --accent-cyan: #00f2ff;
+      --card-bg: rgba(20, 10, 35, 0.7);
+      --border-color: rgba(188, 19, 254, 0.3);
+      --neon-gradient: linear-gradient(135deg, #bc13fe 0%, #00f2ff 100%);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg-black); 
+      background-image: 
+        radial-gradient(circle at top left, rgba(188, 19, 254, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at bottom right, rgba(0, 242, 255, 0.15) 0%, transparent 40%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .app-wrapper { width: 100%; max-width: 370px; display: flex; flex-direction: column; align-items: center; position: relative; }
+
+    /* --- OVERLAY VIDEO SUKSES --- */
+    #overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(5, 1, 10, 0.98); z-index: 9999;
+      display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+    }
+
+    .success-container {
+      background: var(--card-bg); border: 2px solid var(--accent-purple);
+      border-radius: 25px; width: 100%; max-width: 370px; overflow: hidden;
+      box-shadow: 0 0 30px rgba(188, 19, 254, 0.4);
+    }
+
+    .success-video-wrapper { width: 100%; height: 230px; background: #000; display: flex; justify-content: center; align-items: center; }
+    #successVid { width: 100%; height: 100%; object-fit: cover; }
+
+    /* --- MAIN PANELS --- */
+    .main-panel {
+      background: var(--card-bg); backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color); border-radius: 25px;
+      width: 100%; overflow: hidden; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .hero-container { position: relative; width: 100%; height: 230px; }
+    .hero-video { width: 100%; height: 100%; object-fit: cover; }
+
+    .premium-banner {
+      position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
+      border: 1px solid var(--accent-cyan); background: rgba(5, 1, 10, 0.7);
+      padding: 10px 20px; border-radius: 12px; color: var(--accent-cyan);
+      font-size: 12px; font-family: 'Orbitron', sans-serif; white-space: nowrap;
+      letter-spacing: 1px; box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+    }
+
+    .login-container { padding: 30px 20px; }
+    .input-group {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color);
+      border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; padding: 14px 18px; transition: 0.3s;
+    }
+    .input-group:focus-within { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
+    .input-group i { color: var(--accent-purple); width: 30px; }
+    .input-group input { background: transparent; border: none; color: #fff; outline: none; width: 100%; font-size: 14px; }
+
+    .login-btn {
+      background: var(--neon-gradient); border: none; width: 100%; padding: 15px; border-radius: 12px; 
+      color: #fff; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
+      font-family: 'Orbitron', sans-serif; box-shadow: 0 0 15px rgba(188, 19, 254, 0.4); transition: 0.3s;
+    }
+    .login-btn:active { transform: scale(0.98); filter: brightness(1.2); }
+
+    .status-playing { text-align: center; color: #7d6ea1; font-size: 11px; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; }
+    .footer-badge { border: 1px solid var(--border-color); background: rgba(20, 10, 35, 0.4); padding: 10px 30px; border-radius: 12px; color: var(--accent-purple); font-size: 11px; font-weight: 600; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+
+  <audio id="bgMusic" src="https://c.top4top.io/m_3647td0he1.mp3" loop></audio>
+
+  <div id="overlay">
+    <div class="success-container">
+      <div class="success-video-wrapper">
+        <video id="successVid" playsinline>
+          <source src="https://h.top4top.io/m_3667q7ot21.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-wrapper">
+    <div class="main-panel">
+      <div class="hero-container">
+        <video class="hero-video" autoplay loop muted playsinline>
+          <source src="https://g.top4top.io/m_3672d3e6p5.mp4" type="video/mp4">
+        </video>
+        <div class="premium-banner">ReyzCloud</div>
+      </div>
+    </div>
+
+    <div class="main-panel login-container">
+      <form id="authForm">
+        <div class="input-group">
+          <i class="fa-solid fa-user-shield"></i>
+          <input type="text" id="username" placeholder="Username" required>
+        </div>
+        <div class="input-group">
+          <i class="fa-solid fa-key"></i>
+          <input type="password" id="password" placeholder="Password" required>
+        </div>
+        <button type="submit" class="login-btn">LOGIN</button>
+      </form>
+      <div class="status-playing" id="musicToggle">
+        <i class="fa-solid fa-compact-disc fa-spin"></i> MULTO SONGS
+      </div>
+    </div>
+
+    <div class="footer-badge">© 2026 ReyZ4YouXGod • NEW VERSION</div>
+  </div>
+
+  <script>
+    const form = document.getElementById('authForm');
+    const overlay = document.getElementById('overlay');
+    const successVideo = document.getElementById('successVid');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicToggle = document.getElementById('musicToggle');
+
+    musicToggle.addEventListener('click', () => {
+      if (bgMusic.paused) { 
+        bgMusic.play(); 
+        musicToggle.style.color = "#00f2ff"; 
+      } else { 
+        bgMusic.pause(); 
+        musicToggle.style.color = "#7d6ea1"; 
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const inputUser = document.getElementById('username').value.trim();
+      const inputPass = document.getElementById('password').value.trim();
+
+      try {
+        // AMBIL DATA DARI USER.JSON
+        const response = await fetch('settings/user.json');
+        const data = await response.json();
+        
+        // CEK USER
+        const userData = data.users.find(u => u.username === inputUser && u.password === inputPass);
+
+        if (userData) {
+          // SIMPAN SESSION
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('username', userData.username);
+          localStorage.setItem('userRole', userData.role);
+
+          // EFEK SUKSES
+          bgMusic.pause();
+          overlay.style.display = 'flex';
+          successVideo.play();
+          
+          successVideo.onended = () => {
+            window.location.href = "dc.html";
+          };
+        } else {
+          alert("Akses Ditolak: Username atau Password salah!");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Gagal memproses login. Pastikan settings/user.json tersedia.");
+      }
+    });
+  </script>
+</body>
+</html>
