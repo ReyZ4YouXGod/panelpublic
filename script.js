@@ -3,21 +3,28 @@ const domainProxy = "/api-proxy";
 const { apikey, nestid, egg, loc, resourceMap, subdomain, roles, cpanelPackages } = config;
 const output = document.getElementById('output-box');
 
-// --- LOGIKA SISTEM KASTA (UPDATE) ---
+// --- LOGIKA SISTEM KASTA (FIXED) ---
 function applyRolePermissions() {
     const userRole = localStorage.getItem('userRole');
     const username = localStorage.getItem('username');
 
-    // Jika data login hilang, tendang ke login.html
+    // Debugging ke Console (Tekan F12 untuk cek)
+    console.log("Checking Session...", { username, userRole });
+
+    // Jika data tidak ada, paksa login ulang
     if (!userRole || !username) {
+        console.warn("Sesi tidak ditemukan, mengalihkan ke login...");
         window.location.href = "login.html";
         return;
     }
 
     const roleData = roles[userRole];
-    if (!roleData) return;
+    if (!roleData) {
+        alert("Role tidak valid! Hubungi Creator.");
+        return;
+    }
 
-    // Fix Tampilan Profil Sidebar (Menghilangkan status "Memuat...")
+    // UPDATE UI PROFIL (Solusi agar tidak stuck di 'Memuat...')
     const nameEl = document.getElementById('sess-user');
     const roleEl = document.getElementById('sess-role');
     
@@ -27,7 +34,7 @@ function applyRolePermissions() {
         roleEl.className = `u-role ${roleData.badgeClass}`;
     }
 
-    // Filter Menu Sesuai Izin di config.js
+    // FILTER MENU SIDEBAR
     const allMenus = ["nav-create", "nav-subdo", "nav-list", "nav-cpanel", "nav-admin", "nav-danger"];
     allMenus.forEach(id => {
         const el = document.getElementById(id);
@@ -37,7 +44,7 @@ function applyRolePermissions() {
     });
 }
 
-// Fungsi Load Dropdown agar isi RAM dan Domain muncul
+// FUNGSI MENGISI DROPDOWN (Penting agar pilihan RAM & Domain muncul)
 function loadDropdowns() {
     const pkgSelect = document.getElementById('pkgSelect');
     const domSelect = document.getElementById('domSelect');
@@ -57,7 +64,7 @@ function loadDropdowns() {
     }
 }
 
-// Auto Load saat halaman dibuka
+// INISIALISASI SAAT HALAMAN DIBUKA
 window.onload = () => {
     if(!localStorage.getItem('isLoggedIn')) {
         window.location.href = "login.html";
@@ -73,7 +80,9 @@ function randomStr(len = 3) {
     return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-// 1. CREATE SERVER & USER
+// --- FUNGSI UTAMA (PTERODACTYL, CLOUDFLARE, DLL) ---
+
+// 1. CREATE SERVER
 const btnCreate = document.getElementById('btnCreate');
 if(btnCreate) {
     btnCreate.addEventListener('click', async () => {
@@ -81,7 +90,7 @@ if(btnCreate) {
         const pkg = document.getElementById('pkgSelect').value;
         if(!user) return alert("Isi username pembeli!");
 
-        output.innerText = "⏳ Sedang memproses User & Server via Proxy...";
+        output.innerText = "⏳ Sedang memproses User & Server...";
         const { ram, disk, cpu } = resourceMap[pkg];
         const password = user + randomStr(3);
         const uniqueEmail = `${user}.${randomStr(3)}@reyzcloud.com`;
@@ -215,4 +224,4 @@ function showTab(e, tabId, title) {
     document.getElementById(tabId).style.display = 'block';
     if(e) e.currentTarget.classList.add('active');
     document.getElementById('tab-title').innerText = title;
-                                                       }
+}
