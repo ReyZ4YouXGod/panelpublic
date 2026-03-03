@@ -6,7 +6,26 @@ const config = {
     egg: "15",
     loc: "1",
 
-    // Resource Map (Setting RAM, Disk, CPU)
+    // --- SISTEM KASTA (DITAMBAHKAN) ---
+    roles: {
+        "Creator": {
+            badgeClass: "role-creator",
+            canCreate: ["Admin Panel", "Reseller", "CPanel User"],
+            allowedMenus: ["nav-create", "nav-subdo", "nav-list", "nav-cpanel", "nav-admin", "nav-danger"]
+        },
+        "Admin Panel": {
+            badgeClass: "role-admin",
+            canCreate: ["Reseller", "CPanel User"],
+            allowedMenus: ["nav-create", "nav-subdo", "nav-list", "nav-cpanel", "nav-admin"]
+        },
+        "Reseller": {
+            badgeClass: "role-reseller",
+            canCreate: ["CPanel User"],
+            allowedMenus: ["nav-create", "nav-subdo", "nav-cpanel"] 
+        }
+    },
+
+    // Resource Map Lengkap Anda
     resourceMap: {
         "1gb": { ram: "1000", disk: "1000", cpu: "40" },
         "2gb": { ram: "2000", disk: "1000", cpu: "60" },
@@ -21,27 +40,18 @@ const config = {
         "unlimited": { ram: "0", disk: "0", cpu: "0" }
     },
 
-    // Cloudflare Subdomain Settings
+    // Cloudflare Subdomain Settings Lengkap Anda
     subdomain: {
-      "xyzid.store": {
-        "zone": "e93173606e90f52fa3288799c45a293e",
-        "apitoken": "DvtCrbOd1L-dohyju6-dJEV3jjyK2nWZZjCGK6DQ"
-      },
-      "galangoffc.biz.id": {
-        "zone": "de6ecce0e30520f02a55ef47c132aee6", 
-        "apitoken": "SgsTW6PzCAbeKN38TWPald2NmwO_TgvxkwDHMOyw"
-      }, 
-      "pteroweb.my.id": {
-        "zone": "714e0f2e54a90875426f8a6819f782d0",
-        "apitoken": "vOn3NN5HJPut8laSwCjzY-gBO0cxeEdgSLH9WBEH"
-      },
-      "panelwebsite.biz.id": {
-        "zone": "2d6aab40136299392d66eed44a7b1122",
-        "apitoken": "CcavVSmQ6ZcGSrTnOos-oXnawq4yf86TUhmQW29S"
-      },
-      "privatserver.my.id": {
-        "zone": "699bb9eb65046a886399c91daacb1968",
-        "apitoken": "CcavVSmQ6ZcGSrTnOos-oXnawq4yf86TUhmQW29S"  
-      }
+      "xyzid.store": { "zone": "e93173606e90f52fa3288799c45a293e", "apitoken": "DvtCrbOd1L-dohyju6-dJEV3jjyK2nWZZjCGK6DQ" },
+      "galangoffc.biz.id": { "zone": "de6ecce0e30520f02a55ef47c132aee6", "apitoken": "SgsTW6PzCAbeKN38TWPald2NmwO_TgvxkwDHMOyw" }, 
+      "pteroweb.my.id": { "zone": "714e0f2e54a90875426f8a6819f782d0", "apitoken": "vOn3NN5HJPut8laSwCjzY-gBO0cxeEdgSLH9WBEH" },
+      "panelwebsite.biz.id": { "zone": "2d6aab40136299392d66eed44a7b1122", "apitoken": "CcavVSmQ6ZcGSrTnOos-oXnawq4yf86TUhmQW29S" },
+      "privatserver.my.id": { "zone": "699bb9eb65046a886399c91daacb1968", "apitoken": "CcavVSmQ6ZcGSrTnOos-oXnawq4yf86TUhmQW29S" }
+    },
+
+    // Tambahan Paket CPanel (Bisa Anda ubah nanti)
+    cpanelPackages: {
+        "hosting_small": "CPanel Hemat (500MB)",
+        "hosting_large": "CPanel Pro (Unlimited)"
     }
 };
