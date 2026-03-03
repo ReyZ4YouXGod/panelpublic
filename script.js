@@ -71,8 +71,18 @@ document.getElementById('btnCreate').addEventListener('click', async () => {
         
         // Safety Check Server
         if(sData.errors) throw new Error("Gagal Server: " + sData.errors[0].detail);
-
-        output.innerHTML = `✅ <b>BERHASIL!</b>\n\n👤 User: ${user}\n🔑 Pass: ${password}\n💾 RAM: ${ram}MB\n🆔 ID: ${sData.attributes.id}\n📧 Email: ${uniqueEmail}`;
+  output.innerHTML = `
+✅ <b>BERHASIL DIBUAT!</b>
+------------------------------
+🌐 <b>domain:</b> <a href="${config.domain}" target="_blank" style="color: var(--accent); text-decoration: underline;">${config.domain}</a>
+👤 <b>User:</b> ${user}
+🔑 <b>Pass:</b> ${password}
+💾 <b>RAM:</b> ${ram}MB
+🆔 <b>ID Server:</b> ${sData.attributes.id}
+📧 <b>Email:</b> ${uniqueEmail}
+------------------------------
+<i>Silahkan simpan data ini baik-baik!</i>
+`;
     } catch(e) { 
         console.error(e);
         output.innerText = "❌ Error: " + e.message; 
