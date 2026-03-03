@@ -1,6 +1,12 @@
 {
   "version": 2,
   "name": "reyz-cloud-dashboard",
+  "rewrites": [
+    {
+      "source": "/api-proxy/:path*",
+      "destination": "https://panelpublic-phi.vercel.app/api/:path*"
+    }
+  ],
   "cleanUrls": true,
   "outputDirectory": "./"
 }
