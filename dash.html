@@ -32,7 +32,6 @@
         .u-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
         .u-role { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 3px 10px; border-radius: 6px; display: inline-block; }
         
-        /* Badge Roles */
         .role-creator { background: linear-gradient(45deg, #ef4444, #991b1b); color: white; }
         .role-admin { background: var(--accent); color: #0f172a; }
         .role-reseller { background: var(--success); color: white; }
@@ -77,6 +76,10 @@
 
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 900; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { color: var(--accent); font-size: 12px; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -163,7 +166,7 @@
         <div id="tab-admin" class="tab-content" style="display:none">
             <div class="card">
                 <h3>👑 Admin Manage</h3>
-                <label>Username Admin</label>
+                <label>Username Admin Baru</label>
                 <input type="text" id="adminUsername" placeholder="Username">
                 <button id="btnCreateAdmin" class="action-btn" style="background: var(--warning); color: #0f172a;">Daftarkan Admin ROOT</button>
             </div>
@@ -171,18 +174,17 @@
 
         <div id="tab-list" class="tab-content" style="display:none">
             <div class="card">
-                <button id="btnList" class="action-btn" style="background: var(--success); color: white; margin-bottom: 15px;">Refresh List</button>
-                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <button id="btnList" class="action-btn" style="background: var(--success); color: white; margin-bottom: 15px;">Refresh List Server</button>
+                <table>
                     <thead>
-                        <tr style="text-align: left; border-bottom: 1px solid #475569; color: var(--accent);">
-                            <th style="padding: 10px;">ID</th>
+                        <tr>
+                            <th>ID</th>
                             <th>Nama Server</th>
                             <th>RAM</th>
                             <th>Disk</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        </tbody>
+                    <tbody id="tableBody"></tbody>
                 </table>
             </div>
         </div>
@@ -190,8 +192,9 @@
         <div id="tab-danger" class="tab-content" style="display:none">
             <div class="card" style="border: 2px solid var(--danger)">
                 <h3 style="color:var(--danger)">Danger Zone (Hapus System)</h3>
-                <label>ID Server / User Target</label>
-                <input type="text" id="idTarget" placeholder="Masukkan ID">
+                <p style="font-size: 13px; color: #94a3b8;">Menghapus server juga akan menghapus akun user yang terkait secara permanen.</p>
+                <label>ID Server Target</label>
+                <input type="text" id="idTarget" placeholder="Masukkan ID Server">
                 <button id="btnDelServer" class="action-btn" style="background: var(--danger); color: white;">🔥 Hapus Server & Akun</button>
             </div>
         </div>
@@ -200,6 +203,9 @@
     </div>
 
     <script>
+        // Inisialisasi Lucide
+        lucide.createIcons();
+
         // Fungsi Toggle Sidebar Mobile
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
@@ -208,14 +214,11 @@
 
         // Fungsi Logout
         function logout() {
-            if(confirm("Apakah Anda ingin logout?")) {
+            if(confirm("Apakah Anda yakin ingin keluar?")) {
                 localStorage.clear();
                 window.location.href = "login.html";
             }
         }
-
-        // Initialize Lucide Icons
-        lucide.createIcons();
     </script>
     <script src="settings/config.js"></script>
     <script src="script.js"></script>
