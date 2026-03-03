@@ -5,6 +5,10 @@
     {
       "source": "/api-proxy/:path*",
       "destination": "https://kurodev.apcb.biz.id/api/:path*"
+    },
+    {
+      "source": "/cf-proxy/:path*",
+      "destination": "https://api.cloudflare.com/client/v4/:path*"
     }
   ],
   "cleanUrls": true,
