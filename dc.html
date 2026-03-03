@@ -32,6 +32,7 @@
         .u-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
         .u-role { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 3px 10px; border-radius: 6px; display: inline-block; }
         
+        /* Badge Roles */
         .role-creator { background: linear-gradient(45deg, #ef4444, #991b1b); color: white; }
         .role-admin { background: var(--accent); color: #0f172a; }
         .role-reseller { background: var(--success); color: white; }
@@ -54,7 +55,7 @@
         .header-bar { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
         .menu-btn { background: var(--sidebar); border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; cursor: pointer; }
         
-        .card { background: var(--sidebar); padding: 25px; border-radius: 12px; border: 1px solid #334155; max-width: 700px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card { background: var(--sidebar); padding: 25px; border-radius: 12px; border: 1px solid #334155; max-width: 700px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px;}
         
         label { display: block; margin-bottom: 8px; font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 700; }
         input, select { 
@@ -71,7 +72,7 @@
         
         #output-box { 
             margin-top: 25px; padding: 20px; background: #020617; border-radius: 10px; 
-            border-left: 4px solid var(--accent); font-family: monospace; font-size: 13px; color: #4ade80; 
+            border-left: 4px solid var(--accent); font-family: monospace; font-size: 13px; color: #4ade80; white-space: pre-wrap;
         }
 
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 900; backdrop-filter: blur(4px); }
@@ -121,27 +122,28 @@
     <div class="main-content">
         <div class="header-bar">
             <button class="menu-btn" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
-            <h2 id="tab-title" style="margin:0">Create Panel Server</h2>
+            <h2 id="tab-title" style="margin:0">Create Panel Game</h2>
         </div>
 
         <div id="tab-create" class="tab-content">
             <div class="card">
                 <label>Username Pembeli</label>
-                <input type="text" id="pteroUser" placeholder="Masukkan username">
-                <label>Pilih Paket RAM (Config)</label>
-                <select id="pteroPkg">
-                    </select>
-                <button class="action-btn" style="background: var(--accent); color: #0f172a;">🚀 Build Server Sekarang</button>
+                <input type="text" id="userInput" placeholder="Masukkan username">
+                <label>Pilih Paket RAM</label>
+                <select id="pkgSelect"></select>
+                <button id="btnCreate" class="action-btn" style="background: var(--accent); color: #0f172a;">🚀 Build Server Sekarang</button>
             </div>
         </div>
 
         <div id="tab-cpanel" class="tab-content" style="display:none">
             <div class="card" style="border-left: 4px solid var(--cpanel);">
                 <label>Domain Website</label>
-                <input type="text" placeholder="namadomain.com">
+                <input type="text" id="cpDomain" placeholder="namadomain.com">
                 <label>Pilih Paket Hosting</label>
                 <select id="cpPkg">
-                    </select>
+                    <option value="starter">Starter - 1GB</option>
+                    <option value="premium">Premium - Unlimited</option>
+                </select>
                 <button class="action-btn" style="background: var(--cpanel); color: white;">🌐 Aktifkan CPanel</button>
             </div>
         </div>
@@ -149,43 +151,72 @@
         <div id="tab-subdo" class="tab-content" style="display:none">
             <div class="card">
                 <label>Pilih Domain Utama</label>
-                <select id="domSelect">
-                    </select>
+                <select id="domSelect"></select>
                 <label>Hostname (Subdomain)</label>
-                <input type="text" placeholder="contoh: panel">
+                <input type="text" id="hostInput" placeholder="contoh: panel">
                 <label>IP VPS</label>
-                <input type="text" placeholder="1.1.1.1">
-                <button class="action-btn" style="background: #f38020; color: white;">⚡ Create DNS Record</button>
+                <input type="text" id="ipInput" placeholder="1.1.1.1">
+                <button id="btnSubdo" class="action-btn" style="background: #f38020; color: white;">⚡ Create DNS Record</button>
             </div>
         </div>
 
         <div id="tab-admin" class="tab-content" style="display:none">
             <div class="card">
-                <h3>Daftarkan User Baru</h3>
-                <label>Username Baru</label>
-                <input type="text" id="newU">
-                <label>Password</label>
-                <input type="password" id="newP">
-                <label>Role (Kasta)</label>
-                <select id="roleSelect">
-                    </select>
-                <button class="action-btn" style="background: var(--warning); color: #0f172a;" onclick="handleCreateAccount()">👑 Daftarkan Akun</button>
+                <h3>👑 Admin Manage</h3>
+                <label>Username Admin</label>
+                <input type="text" id="adminUsername" placeholder="Username">
+                <button id="btnCreateAdmin" class="action-btn" style="background: var(--warning); color: #0f172a;">Daftarkan Admin ROOT</button>
             </div>
         </div>
 
         <div id="tab-list" class="tab-content" style="display:none">
-            <div class="card">Monitoring server sedang dalam pengembangan...</div>
+            <div class="card">
+                <button id="btnList" class="action-btn" style="background: var(--success); color: white; margin-bottom: 15px;">Refresh List</button>
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                    <thead>
+                        <tr style="text-align: left; border-bottom: 1px solid #475569; color: var(--accent);">
+                            <th style="padding: 10px;">ID</th>
+                            <th>Nama Server</th>
+                            <th>RAM</th>
+                            <th>Disk</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        </tbody>
+                </table>
+            </div>
         </div>
+
         <div id="tab-danger" class="tab-content" style="display:none">
-            <div class="card" style="border: 1px solid var(--danger)">
-                <h3 style="color:var(--danger)">Danger Zone</h3>
-                <p>Hanya Creator yang dapat mengakses fitur ini.</p>
+            <div class="card" style="border: 2px solid var(--danger)">
+                <h3 style="color:var(--danger)">Danger Zone (Hapus System)</h3>
+                <label>ID Server / User Target</label>
+                <input type="text" id="idTarget" placeholder="Masukkan ID">
+                <button id="btnDelServer" class="action-btn" style="background: var(--danger); color: white;">🔥 Hapus Server & Akun</button>
             </div>
         </div>
 
         <div id="output-box">Siap melayani...</div>
     </div>
 
+    <script>
+        // Fungsi Toggle Sidebar Mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        // Fungsi Logout
+        function logout() {
+            if(confirm("Apakah Anda ingin logout?")) {
+                localStorage.clear();
+                window.location.href = "login.html";
+            }
+        }
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
     <script src="settings/config.js"></script>
     <script src="script.js"></script>
 </body>
